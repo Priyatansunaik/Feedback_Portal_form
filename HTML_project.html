@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <!-- Makes the page fit phone screens properly -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Faculty Feedback Portal</title>
+
+  <style>
+    /* ===================================================
+       THEME COLOURS (white + orange + black, like the LPU logo)
+       Change a colour here and it changes everywhere.
+       =================================================== */
+    :root {
+      --orange: #f47b20;       /* main brand colour: buttons, bars, accents */
+      --orange-dark: #d9650f;  /* darker orange for hover */
+      --orange-soft: #fff1e6;  /* very light orange for backgrounds */
+      --black: #000000;        /* header, headings, text */
+      --grey: #5f5f5f;         /* small helper text */
+      --line: #e6e6e6;         /* thin borders */
+      --white: #ffffff;
+    }
+
+    /* Basic page settings: font, background, text colour */
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: var(--orange-soft);
+      color: var(--black);
+      line-height: 1.5;
+    }
+
+    /* ===== TOP BAR: black with an orange line underneath ===== */
+    .topbar {
+      background: var(--black);
+      color: var(--white);
+      border-bottom: 5px solid var(--orange);
+      padding: 14px 24px;
+      display: flex;                    /* puts title and button side by side */
+      justify-content: space-between;
+      align-items: center;
+    }
+    .topbar h1 { margin: 0; font-size: 1.3rem; color: var(--white); }
+    .topbar span { color: var(--orange); }   /* the orange word in the title */
+
+    /* ===== The white box that holds each page's content ===== */
+    .container { max-width: 860px; margin: 24px auto; padding: 0 16px; }
+    .card {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-top: 4px solid var(--orange);
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    /* Headings inside the cards */
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    h2.title { border-left: 5px solid var(--orange); padding-left: 10px; }
+
+    /* ===== LOGIN PAGE ===== */
+    .login-box { max-width: 380px; margin: 60px auto; }
+    .login-box h1 { margin-top: 0; font-size: 1.5rem; }
+    .login-box h1 span { color: var(--orange); }
+
+    /* Text boxes, dropdowns and comment box */
+    input[type="text"], input[type="password"], select, textarea {
+      width: 100%;
+      box-sizing: border-box;      /* keeps the width from overflowing the card */
+      padding: 10px;
+      margin-top: 4px;
+      border: 1px solid #bbb;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-family: inherit;
+    }
+    /* Orange glow when you click inside a box */
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px rgba(244, 123, 32, 0.25);
+    }
+    label { font-weight: 600; }
+
+    /* ===== BUTTONS ===== */
+    button {
+      background: var(--orange);
+      color: var(--white);
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:hover { background: var(--orange-dark); }
+    button:focus-visible { outline: 3px solid var(--black); outline-offset: 2px; }
+
+    /* Black button style (used for Log out and Delete) */
+    button.dark { background: var(--black); border: 2px solid var(--orange); }
+    button.dark:hover { background: #2b2b2b; }
+
+    /* Message lines (errors / thank-you) */
+    .error { color: #c0392b; font-weight: 600; }
+    .success { color: #1e7e34; font-weight: 600; }
+    .hint { color: var(--grey); font-size: 0.9rem; }
+
+    /* ===== FACULTY NAME BOX ===== */
+    .faculty-box {
+      background: var(--orange-soft);
+      border-left: 5px solid var(--orange);
+      padding: 10px 14px;
+      border-radius: 4px;
+      margin: 14px 0;
+    }
+
+    /* ===== TABLES (ratings table + admin table) ===== */
+    .table-wrap { overflow-x: auto; }       /* lets wide tables scroll on phones */
+    table { border-collapse: collapse; width: 100%; background: var(--white); }
+    th {
+      background: var(--black);
+      color: var(--white);
+      padding: 10px;
+      text-align: center;
+      font-weight: 600;
+    }
+    td { padding: 10px; border-bottom: 1px solid var(--line); text-align: center; }
+    td:first-child { text-align: left; }    /* question / course names on the left */
+    tr:nth-child(even) td { background: #fafafa; }
+
+    /* Radio buttons and slider in orange */
+    input[type="radio"] { accent-color: var(--orange); width: 18px; height: 18px; cursor: pointer; }
+    input[type="range"] { accent-color: var(--orange); width: 100%; }
+    .slider-number { color: var(--orange); font-size: 1.3rem; }
+
+    /* ===== ADMIN: SUMMARY NUMBERS ===== */
+    .stats { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+    .stat {
+      flex: 1;
+      min-width: 160px;
+      background: var(--black);
+      color: var(--white);
+      border-bottom: 5px solid var(--orange);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .stat b { display: block; font-size: 2rem; color: var(--orange); }
+
+    /* ===== ADMIN: CHART BARS ===== */
+    .bar-row { margin-bottom: 14px; }
+    progress {
+      width: 100%;
+      height: 18px;
+      appearance: none;
+      -webkit-appearance: none;
+      border: none;
+      border-radius: 9px;
+      overflow: hidden;
+      background: #eee;
+    }
+    /* The coloured part of the bar (each browser needs its own line) */
+    progress::-webkit-progress-bar { background: #eee; }
+    progress::-webkit-progress-value { background: var(--orange); }
+    progress::-moz-progress-bar { background: var(--orange); }
+
+    /* ===== ADMIN: COMMENTS ===== */
+    .comment {
+      border-left: 4px solid var(--orange);
+      background: var(--orange-soft);
+      padding: 8px 12px;
+      margin-bottom: 10px;
+      border-radius: 4px;
+    }
+
+    .admin-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+  </style>
+</head>
+
+<body>
+
+<!-- 
+     PAGE 1: LOGIN (shown first)
+     "hidden" on the other pages keeps them invisible for now.
+      -->
+<div id="loginPage">
+  <div class="container">
+    <div class="card login-box">
+      <h1>Faculty <span>Feedback</span> Portal</h1>
+
+      <label for="username">Username:</label>
+      <input type="text" id="username">
+      <br><br>
+
+      <label for="password">Password:</label>
+      <input type="password" id="password">
+      <br><br>
+
+      <button onclick="login()">Log in</button>
+      <p id="loginError" class="error"></p>
+
+      <p class="hint"><i>Demo accounts: student1 / 1234, student2 / 1234, admin / admin</i></p>
+    </div>
+  </div>
+</div>
+
+
+<!-- 
+     PAGE 2: STUDENT FEEDBACK FORM
+      -->
+<div id="studentPage" hidden>
+
+  <!-- Black top bar with the title and Log out button -->
+  <div class="topbar">
+    <h1>Course <span>Feedback</span></h1>
+    <button class="dark" onclick="logout()">Log out</button>
+  </div>
+
+  <div class="container">
+    <div class="card">
+      <p class="hint"><i>Your feedback is anonymous. Your name is not saved with your ratings.</i></p>
+
+      <form id="feedbackForm">
+
+        <!-- Course dropdown: filled automatically from the COURSES list in the script -->
+        <label for="courseSelect">Course:</label>
+        <select id="courseSelect" onchange="showFaculty()"></select>
+
+        <!-- Faculty name appears automatically for the chosen course -->
+        <div class="faculty-box">Faculty: <b id="facultyName"></b></div>
+
+        <!-- Ratings table: 1 (worst) to 5 (best).
+             Radio buttons with the SAME name belong together (only one can be picked).
+             To add a question: copy a <tr> row, change the text AND the name,
+             then add the same name to the QUESTIONS list in the script. -->
+        <h2 class="title">Ratings</h2>
+        <p class="hint">1 = Strongly disagree, 5 = Strongly agree</p>
+        <div class="table-wrap">
+        <table>
+          <tr>
+            <th>Question</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
+          </tr>
+          <tr>
+            <td>The instructor explained concepts clearly.</td>
+            <td><input type="radio" name="clarity" value="1"></td>
+            <td><input type="radio" name="clarity" value="2"></td>
+            <td><input type="radio" name="clarity" value="3"></td>
+            <td><input type="radio" name="clarity" value="4"></td>
+            <td><input type="radio" name="clarity" value="5"></td>
+          </tr>
+          <tr>
+            <td>The instructor was prepared and organized.</td>
+            <td><input type="radio" name="organization" value="1"></td>
+            <td><input type="radio" name="organization" value="2"></td>
+            <td><input type="radio" name="organization" value="3"></td>
+            <td><input type="radio" name="organization" value="4"></td>
+            <td><input type="radio" name="organization" value="5"></td>
+          </tr>
+          <tr>
+            <td>The instructor encouraged questions.</td>
+            <td><input type="radio" name="participation" value="1"></td>
+            <td><input type="radio" name="participation" value="2"></td>
+            <td><input type="radio" name="participation" value="3"></td>
+            <td><input type="radio" name="participation" value="4"></td>
+            <td><input type="radio" name="participation" value="5"></td>
+          </tr>
+          <tr>
+            <td>Assessment and feedback were fair and timely.</td>
+            <td><input type="radio" name="assessment" value="1"></td>
+            <td><input type="radio" name="assessment" value="2"></td>
+            <td><input type="radio" name="assessment" value="3"></td>
+            <td><input type="radio" name="assessment" value="4"></td>
+            <td><input type="radio" name="assessment" value="5"></td>
+          </tr>
+        </table>
+        </div>
+
+        <!-- Slider: drag between 1 and 5 (the number next to it updates) -->
+        <p>Overall, how effective was this faculty member?
+           <b id="sliderValue" class="slider-number">3</b> / 5</p>
+        <input type="range" id="slider" min="1" max="5" value="3"
+               oninput="document.getElementById('sliderValue').textContent = this.value">
+
+        <!-- Comment box -->
+        <p><label for="comment">Comments (optional):</label></p>
+        <textarea id="comment" rows="5"></textarea>
+        <br><br>
+
+        <!-- type="button" so the page does not reload; JavaScript handles it -->
+        <button type="button" onclick="submitFeedback()">Submit Feedback</button>
+      </form>
+
+      <p id="formMsg"></p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===================================================
+     PAGE 3: ADMIN DASHBOARD
+     =================================================== -->
+<div id="adminPage" hidden>
+
+  <div class="topbar">
+    <h1>Admin <span>Dashboard</span></h1>
+    <button class="dark" onclick="logout()">Log out</button>
+  </div>
+
+  <div class="container">
+
+    <!-- Summary numbers -->
+    <div class="stats">
+      <div class="stat">Total responses <b id="statCount">0</b></div>
+      <div class="stat">Average rating (out of 5) <b id="statAvg">0</b></div>
+    </div>
+
+    <div class="card">
+      <!-- Switch between course-wise and faculty-wise results -->
+      <label for="groupBy">View results by:</label>
+      <select id="groupBy" onchange="showAdmin()">
+        <option value="course">Course</option>
+        <option value="faculty">Faculty</option>
+      </select>
+
+      <!-- Chart: each bar is a <progress> tag (basic HTML!) -->
+      <h2 class="title" style="margin-top:24px;">Average Rating Chart</h2>
+      <div id="chart"></div>
+    </div>
+
+    <div class="card">
+      <!-- Table of results -->
+      <h2 class="title">Detailed Table</h2>
+      <div id="tableBox" class="table-wrap"></div>
+    </div>
+
+    <div class="card">
+      <!-- Last few comments -->
+      <h2 class="title">Recent Comments</h2>
+      <div id="commentBox"></div>
+    </div>
+
+    <!-- Test helpers -->
+    <div class="admin-buttons">
+      <button onclick="addSampleData()">Add sample data</button>
+      <button class="dark" onclick="resetData()">Delete all data</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  /*
+     DATA YOU CAN EDIT
+      */
+
+  // Who can log in. .
+  var USERS = [
+    { username: "student1", password: "1234",  role: "student" },
+    { username: "student2", password: "1234",  role: "student" },
+    { username: "admin",    password: "admin", role: "admin" }
+  ];
+
+  // Courses and their faculty.
+  var COURSES = [
+    { id: "CSE-326", name: "Internet Programming", faculty: "Khushi Sharma" },
+    { id: "CHE-110", name: "Environmental Studies",      faculty: "DR. Vishal Kumar" },
+    { id: "CSE-111", name: "Orientation to Computing",             faculty: "DR. Atul sharma" },
+    { id: "ECE-120", name: "Basic Electronics Engineering Workshop",              faculty: "DR. Pankaj Kumar" },
+    { id: "INT-108", name: "Python Programming",              faculty: "Twinkle Sehgal" },
+    { id: "MTH-165", name: "Mathematics for engineers",              faculty: "DR. Pradeep Kumar" },
+    { id: "PHY-175", name: "Modern Physics and Electronics",              faculty: "DR. Pankaj Kumar Keshri" }
+  ];
+
+  // The radio-button question names (must match name="..." in the table above)
+  var QUESTIONS = ["clarity", "organization", "participation", "assessment"];
+
+  /* 
+     SAVING DATA 
+     */
+  function load(key) { return JSON.parse(localStorage.getItem(key) || "[]"); }
+  function save(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
+
+  // feedback  = anonymous ratings (NO student name)
+  // submitted = which student rated which course (NO ratings)
+  // Two separate lists = anonymous feedback AND no duplicate submissions.
+  var feedback = load("feedback");
+  var submitted = load("submitted");
+  var currentUser = null;
+
+  // Shows one page and hides the other two
+  function showPage(id) {
+    document.getElementById("loginPage").hidden = (id != "loginPage");
+    document.getElementById("studentPage").hidden = (id != "studentPage");
+    document.getElementById("adminPage").hidden = (id != "adminPage");
+  }
+
+  /* 
+     LOGIN / LOGOUT
+      */
+  function login() {
+    var u = document.getElementById("username").value;
+    var p = document.getElementById("password").value;
+    currentUser = null;
+
+    for (var i = 0; i < USERS.length; i++) {          // look for a matching user
+      if (USERS[i].username == u && USERS[i].password == p) { currentUser = USERS[i]; }
+    }
+
+    if (currentUser == null) {
+      document.getElementById("loginError").textContent = "Wrong username or password.";
+      return;
+    }
+    document.getElementById("loginError").textContent = "";
+    document.getElementById("password").value = "";
+
+    if (currentUser.role == "admin") { showPage("adminPage"); showAdmin(); }
+    else { showPage("studentPage"); startForm(); }
+  }
+
+  function logout() {
+    currentUser = null;
+    showPage("loginPage");
+  }
+
+  /* 
+     STUDENT FORM
+     */
+  function startForm() {
+    document.getElementById("feedbackForm").reset();     // clear old answers
+    document.getElementById("sliderValue").textContent = 3;
+
+    // Fill the course dropdown. Finished courses show "(done)".
+    var html = "";
+    for (var i = 0; i < COURSES.length; i++) {
+      var c = COURSES[i];
+      var done = submitted.indexOf(currentUser.username + "|" + c.id) != -1;
+      html += "<option value='" + c.id + "'>" + c.id + " - " + c.name + (done ? " (done)" : "") + "</option>";
+    }
+    document.getElementById("courseSelect").innerHTML = html;
+    showFaculty();
+  }
+
+  // Show the faculty name for the chosen course
+  function showFaculty() {
+    var id = document.getElementById("courseSelect").value;
+    for (var i = 0; i < COURSES.length; i++) {
+      if (COURSES[i].id == id) { document.getElementById("facultyName").textContent = COURSES[i].faculty; }
+    }
+  }
+
+  function submitFeedback() {
+    var msg = document.getElementById("formMsg");
+    var courseId = document.getElementById("courseSelect").value;
+    var key = currentUser.username + "|" + courseId;
+
+    // CHECK 1: no duplicate submissions
+    if (submitted.indexOf(key) != -1) {
+      msg.className = "error";                           // red text (style above)
+      msg.textContent = "You already gave feedback for this course.";
+      return;
+    }
+
+    // CHECK 2: every question must be answered
+    var ratings = {};
+    for (var i = 0; i < QUESTIONS.length; i++) {
+      var picked = document.querySelector("input[name='" + QUESTIONS[i] + "']:checked");
+      if (picked == null) {
+        msg.className = "error";
+        msg.textContent = "Please answer every question in the ratings table.";
+        return;
+      }
+      ratings[QUESTIONS[i]] = Number(picked.value);
+    }
+
+    // Find the course details
+    var course = null;
+    for (var j = 0; j < COURSES.length; j++) {
+      if (COURSES[j].id == courseId) { course = COURSES[j]; }
+    }
+
+    // Save the anonymous feedback (no username here!)
+    feedback.push({
+      courseId: course.id,
+      courseName: course.name,
+      faculty: course.faculty,
+      ratings: ratings,
+      overall: Number(document.getElementById("slider").value),
+      comment: document.getElementById("comment").value,
+      date: new Date().toLocaleDateString()
+    });
+    save("feedback", feedback);
+
+    // Save separately that this student has submitted for this course
+    submitted.push(key);
+    save("submitted", submitted);
+
+    startForm();
+    msg.className = "success";                           // green text (style above)
+    msg.textContent = "Thank you! Your anonymous feedback was submitted.";
+  }
+
+  /* ===================================================
+     ADMIN DASHBOARD
+     =================================================== */
+
+  // Average of a list of numbers (2 decimals)
+  function average(list) {
+    if (list.length == 0) { return 0; }
+    var sum = 0;
+    for (var i = 0; i < list.length; i++) { sum += list[i]; }
+    return Math.round(sum / list.length * 100) / 100;
+  }
+
+  // Stops comments from being read as HTML code (safety)
+  function clean(text) {
+    var d = document.createElement("div");
+    d.textContent = text;
+    return d.innerHTML;
+  }
+
+  function showAdmin() {
+    var by = document.getElementById("groupBy").value;   // "course" or "faculty"
+
+    // Step 1: put feedback into groups (one per course or faculty)
+    var groups = {};
+    var allScores = [];
+    for (var i = 0; i < feedback.length; i++) {
+      var f = feedback[i];
+      var name = (by == "course") ? f.courseId + " - " + f.courseName : f.faculty;
+      if (!groups[name]) { groups[name] = []; }
+      groups[name].push(f);
+
+      for (var q = 0; q < QUESTIONS.length; q++) { allScores.push(f.ratings[QUESTIONS[q]]); }
+      allScores.push(f.overall);
+    }
+
+    // Step 2: summary numbers
+    document.getElementById("statCount").textContent = feedback.length;
+    document.getElementById("statAvg").textContent = average(allScores);
+
+    // Step 3: build the chart and the table
+    var chart = "";
+    var table = "<table><tr><th>" + (by == "course" ? "Course" : "Faculty") + "</th><th>Responses</th>";
+    for (var h = 0; h < QUESTIONS.length; h++) { table += "<th>" + QUESTIONS[h] + "</th>"; }
+    table += "<th>Slider (overall)</th><th>Average</th></tr>";
+
+    for (var groupName in groups) {
+      var list = groups[groupName];
+      var rowScores = [];
+      var row = "<tr><td>" + clean(groupName) + "</td><td>" + list.length + "</td>";
+
+      for (var k = 0; k < QUESTIONS.length; k++) {         // average for each question
+        var scores = [];
+        for (var m = 0; m < list.length; m++) { scores.push(list[m].ratings[QUESTIONS[k]]); }
+        rowScores = rowScores.concat(scores);
+        row += "<td>" + average(scores) + "</td>";
+      }
+
+      var sliderScores = [];                               // slider average
+      for (var n = 0; n < list.length; n++) { sliderScores.push(list[n].overall); }
+      rowScores = rowScores.concat(sliderScores);
+      var total = average(rowScores);
+
+      row += "<td>" + average(sliderScores) + "</td><td><b>" + total + "</b></td></tr>";
+      table += row;
+
+      // <progress> draws a bar: value = the rating, max = 5
+      chart += "<div class='bar-row'>" + clean(groupName) + " <b>" + total + "</b><br><progress value='" + total + "' max='5'></progress></div>";
+    }
+    table += "</table>";
+
+    if (feedback.length == 0) {
+      chart = "<p>No feedback yet. Click 'Add sample data' below.</p>";
+      table = "";
+    }
+    document.getElementById("chart").innerHTML = chart;
+    document.getElementById("tableBox").innerHTML = table;
+
+    // Step 4: show the last 5 comments
+    var comments = "";
+    var shown = 0;
+    for (var c = feedback.length - 1; c >= 0 && shown < 5; c--) {
+      if (feedback[c].comment != "") {
+        comments += "<div class='comment'><b>" + feedback[c].courseId + "</b> (" + feedback[c].date + "): " + clean(feedback[c].comment) + "</div>";
+        shown++;
+      }
+    }
+    document.getElementById("commentBox").innerHTML = comments || "<p>No comments yet.</p>";
+  }
+
+  // Random random number from 3 to 5 (helper for sample data)
+  function randomRating() { return 3 + Math.floor(Math.random() * 3); }
+
+  // Adds 6 fake feedback entries per course so you can test the dashboard
+  function addSampleData() {
+    for (var i = 0; i < COURSES.length; i++) {
+      for (var j = 0; j < 6; j++) {
+        var r = {};
+        for (var q = 0; q < QUESTIONS.length; q++) { r[QUESTIONS[q]] = randomRating(); }
+        feedback.push({
+          courseId: COURSES[i].id, courseName: COURSES[i].name, faculty: COURSES[i].faculty,
+          ratings: r, overall: randomRating(),
+          comment: (j == 0) ? "Sample comment for " + COURSES[i].name : "",
+          date: new Date().toLocaleDateString()
+        });
+      }
+    }
+    save("feedback", feedback);
+    showAdmin();
+  }
+
+  // Deletes all saved feedback
+  function resetData() {
+    if (!confirm("Delete ALL feedback data?")) { return; }
+    feedback = [];
+    submitted = [];
+    save("feedback", feedback);
+    save("submitted", submitted);
+    showAdmin();
+  }
+</script>
+
+</body>
+</html>
